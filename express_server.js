@@ -7,7 +7,9 @@ app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 
 const generateRandomString = () => {
-  return Math.floor((1 + Math.random()) * 0x1000000).toString;
+  return Math.floor((1 + Math.random()) * 0x1000000)
+    .toString(16)
+    .substring(1);
 };
 
 const urlDatabase = {
@@ -34,7 +36,10 @@ app.get("/urls/new", (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body); //Log POST req body
-  res.send("Ok"); // Response filler
+  let shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect(`/urls/${shortURL}`);
+  console.log(urlDatabase);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -43,6 +48,11 @@ app.get("/urls/:shortURL", (req, res) => {
     longURL: urlDatabase[req.params.shortURL],
   };
   res.render("urls_show", templateVars);
+});
+
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
 });
 
 app.get("/hello", (req, res) => {
