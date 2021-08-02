@@ -33,8 +33,8 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);
-  res.send("Ok");
+  console.log(req.body); //Log POST req body
+  res.send("Ok"); // Response filler
 });
 
 app.get("/urls/:shortURL", (req, res) => {
