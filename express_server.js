@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set("view engine", "ejs");
 
@@ -39,7 +39,6 @@ app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
-  console.log(urlDatabase);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -53,6 +52,14 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
+});
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  //ensure you have / before urls!
+  console.log(req.params);
+  let shortURL = req.params.shortURL;
+  delete urlDatabase[shortURL];
+  res.redirect("/urls");
 });
 
 // app.get("/hello", (req, res) => {
