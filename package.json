@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/gloe2019/tinyapp/issues"
   },
-  "homepage": "https://github.com/gloe2019/tinyapp#readme"
+  "homepage": "https://github.com/gloe2019/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
