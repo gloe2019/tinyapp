@@ -20,8 +20,19 @@
         <p class="card-text">
           Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a>
         </p>
-        <form action="POST" action="/urls/<%=longURL%>/">
-          <input class="form-control" type="text" name="longURL" id="longURL" />
+        <form class="form-inline" method="POST" action="/urls/<%= shortURL %>">
+          <div class="form-group mx-auto mb-4">
+            <label for="longURL" class="mx-2">New URL: </label>
+            <input
+              class="form-control"
+              type="text"
+              name="longURL"
+              id="longURL"
+            />
+            <button type="submit" class="btn btn-outline-primary mx-2">
+              Submit
+            </button>
+          </div>
         </form>
       </div>
       <div class="card-footer text-muted"></div>

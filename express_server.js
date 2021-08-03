@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 
 app.set("view engine", "ejs");
 
@@ -46,6 +46,10 @@ app.get("/urls/:shortURL", (req, res) => {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
   };
+  if (!templateVars.shortURL) {
+    res.redirect("/urls");
+    return;
+  }
   res.render("urls_show", templateVars);
 });
 
@@ -59,6 +63,16 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   console.log(req.params);
   let shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
+  res.redirect("/urls");
+});
+
+app.post("/urls/:id", (req, res) => {
+  console.log(req.params);
+  //modify longURL
+  const shortURL = req.params.id;
+  const longURL = req.body.longURL;
+  urlDatabase[shortURL] = longURL;
+  console.log(urlDatabase);
   res.redirect("/urls");
 });
 
