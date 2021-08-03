@@ -20,6 +20,9 @@
         <p class="card-text">
           Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a>
         </p>
+        <form action="POST" action="/urls/<%=longURL%>/">
+          <input class="form-control" type="text" name="longURL" id="longURL" />
+        </form>
       </div>
       <div class="card-footer text-muted"></div>
     </div>
