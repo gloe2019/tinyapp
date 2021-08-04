@@ -42,12 +42,11 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   let user = req.cookies.user_id;
-  const templateVars = { user: users[user], username: req.cookies.username };
+  const templateVars = { user: users[user] };
   res.render("urls_new", templateVars);
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); //Log POST req body
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
@@ -104,10 +103,8 @@ app.post("/register", (req, res) => {
     res.sendStatus(400);
   }
   console.log(users);
-  // eslint-disable-next-line camelcase
   let id = generateRandomString();
   // add a new user object to global users. include id, email, password
-  // eslint-disable-next-line camelcase
   users[id] = {
     id,
     email,
@@ -115,13 +112,16 @@ app.post("/register", (req, res) => {
   };
   //set user_id cookie containing user's newly generated ID
   res.cookie("user_id", id);
-  //redirect to urls
   console.log(users);
   res.redirect("/urls");
 });
 
 app.get("/login", (req, res) => {
-  res.render("login");
+  let user = req.cookies.user_id;
+  const templateVars = {
+    user: users[user],
+  };
+  res.render("login", templateVars);
 });
 
 app.post("/login", (req, res) => {
@@ -146,7 +146,6 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   console.log(req.body);
-  res.clearCookie("username");
   res.clearCookie("user_id");
   res.redirect("/urls");
 });
