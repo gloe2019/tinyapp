@@ -78,6 +78,13 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+app.get("/register", (req, res) => {
+  const templateVars = {
+    username: req.cookies.username,
+  };
+  res.render("register", templateVars);
+});
+
 app.post("/urls/:shortURL/delete", (req, res) => {
   //ensure you have / before urls!
   console.log(req.params);
