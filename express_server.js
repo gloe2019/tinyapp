@@ -47,6 +47,7 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   console.log(req.body);
   res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
@@ -99,18 +100,18 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   console.log(req.body);
-  // console.log(req.params);
-  let userID = generateRandomString();
+  // eslint-disable-next-line camelcase
+  let user_id = generateRandomString();
   // add a new user object to global users. include id, email, password
-  users[userID] = {
-    userID: {
-      id: userID,
-      email: req.body.email,
-      password: req.body.password,
-    },
+  // eslint-disable-next-line camelcase
+  users[user_id] = {
+    // eslint-disable-next-line camelcase
+    id: user_id,
+    email: req.body.email,
+    password: req.body.password,
   };
   //set user_id cookie containing user's newly generated ID
-  res.cookie("user_id", userID);
+  res.cookie("user_id", user_id);
   //redirect to urls
   console.log(users);
   res.redirect("/urls");
