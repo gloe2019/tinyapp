@@ -93,34 +93,28 @@ const emailLookup = (testEmail) => {
 
 app.post("/register", (req, res) => {
   console.log(req.body);
-  // eslint-disable-next-line camelcase
+  const email = req.body.email;
+  const password = req.body.password;
   //if email/pass is empty string, respond with 400 status code
-  if (req.body.email === "" || req.body.password === "") {
+  if (email === "" || password === "") {
     res.sendStatus(400);
   }
   //if email already exists in users, respond with 400 status code..
-  // const keys = Object.keys(users);
-  // for (const key of keys) {
-  //   if (req.body.email === users[key].email) {
-  //     res.sendStatus(400);
-  //   }
-  // }
-  if (emailLookup(req.body.email) === true) {
+  if (emailLookup(email) === true) {
     res.sendStatus(400);
   }
   console.log(users);
   // eslint-disable-next-line camelcase
-  let user_id = generateRandomString();
+  let id = generateRandomString();
   // add a new user object to global users. include id, email, password
   // eslint-disable-next-line camelcase
-  users[user_id] = {
-    // eslint-disable-next-line camelcase
-    id: user_id,
-    email: req.body.email,
-    password: req.body.password,
+  users[id] = {
+    id,
+    email,
+    password,
   };
   //set user_id cookie containing user's newly generated ID
-  res.cookie("user_id", user_id);
+  res.cookie("user_id", id);
   //redirect to urls
   console.log(users);
   res.redirect("/urls");
@@ -131,13 +125,23 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  console.log(req.body);
-  //req.body has key-val pair - username: provided username
-  // set a cookie named username to the value submitted in req.body.
-  let usernameVal = req.body.username;
-  res.cookie("username", usernameVal);
-  //redirect to /urls
-  res.redirect("/urls");
+  const email = req.body.email;
+  const password = req.body.password;
+  //req.body has email and password. lookup the email address in the user object
+
+  if (emailLookup(email) === false) {
+    res.sendStatus(403);
+  }
+  if (emailLookup(email) === true) {
+    //if password matches url database, set user_id cookie with matchin random urls
+    for (const user in users) {
+      if (password === users[user].password) {
+        res.cookie("user_id", user);
+        res.redirect("/urls");
+      }
+    }
+    res.sendStatus(403);
+  }
 });
 
 app.post("/logout", (req, res) => {
