@@ -19,7 +19,7 @@
       </div>
 
       <div class="nav navbar-nav ml-auto">
-        <% if (!username) { %>
+        <% if (!user) { %>
         <form class="form-inline" method="POST" action="/login">
           <input
             class="form-control mr-sm-2"
@@ -31,7 +31,9 @@
           <button class="btn btn-light" type="submit">Sign In</button>
         </form>
         <% } else { %>
-        <div class="nav navbar-text mr-3">User signed in: <%=username%></div>
+        <div class="nav navbar-text mr-3">
+          User signed in: <%= user.email %>
+        </div>
         <form class="form-inline" method="POST" action="/logout">
           <button class="btn btn-light" type="submit">Logout</button>
         </form>
