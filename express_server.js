@@ -127,13 +127,12 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  //req.body has email and password. lookup the email address in the user object
-
+  //lookup the email address in the user object
   if (emailLookup(email) === false) {
     res.sendStatus(403);
   }
   if (emailLookup(email) === true) {
-    //if password matches url database, set user_id cookie with matchin random urls
+    //if password matches url database, set user_id cookie with matching id
     for (const user in users) {
       if (password === users[user].password) {
         res.cookie("user_id", user);
@@ -151,7 +150,6 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  //ensure you have / before urls!
   console.log(req.params);
   let shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];

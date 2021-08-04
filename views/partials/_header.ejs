@@ -17,12 +17,12 @@
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
-      <div class="navbar-nav ml-auto">
+      <div class="navbar-nav ml-auto my-auto">
         <% if (!user) {%>
         <button type="submit" class="btn btn-outline-secondary mx-2">
           <a href="/register" class="nav-item nav-link">Register</a>
         </button>
-        <button type="submit" class="btn btn-outline-success mx-2">
+        <button type="submit" class="btn btn-success mx-2">
           <a href="/login" class="nav-item nav-link">Login</a>
         </button>
         <% } else { %>
