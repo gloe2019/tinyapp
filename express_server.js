@@ -98,9 +98,34 @@ app.get("/register", (req, res) => {
   res.render("register", templateVars);
 });
 
+const emailLookup = (testEmail) => {
+  const keys = Object.keys(users);
+  for (const key of keys) {
+    if (users[key].email === testEmail) {
+      return true;
+    }
+  }
+  return false;
+};
+
 app.post("/register", (req, res) => {
   console.log(req.body);
   // eslint-disable-next-line camelcase
+  //if email/pass is empty string, respond with 400 status code
+  if (req.body.email === "" || req.body.password === "") {
+    res.sendStatus(400);
+  }
+  //if email already exists in users, respond with 400 status code..
+  // const keys = Object.keys(users);
+  // for (const key of keys) {
+  //   if (req.body.email === users[key].email) {
+  //     res.sendStatus(400);
+  //   }
+  // }
+  if (emailLookup(req.body.email) === true) {
+    res.sendStatus(400);
+  }
+  console.log(users);
   let user_id = generateRandomString();
   // add a new user object to global users. include id, email, password
   // eslint-disable-next-line camelcase
