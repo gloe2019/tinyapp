@@ -18,30 +18,23 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
       <div class="navbar-nav ml-auto">
+        <% if (!user) {%>
         <button type="submit" class="btn btn-outline-secondary mx-2">
           <a href="/register" class="nav-item nav-link">Register</a>
         </button>
         <button type="submit" class="btn btn-outline-success mx-2">
           <a href="/login" class="nav-item nav-link">Login</a>
         </button>
-
-        <!-- <form class="form-inline" method="POST" action="/login">
-          <input
-            class="form-control mr-sm-2"
-            type="text"
-            name="username"
-            id="username"
-            placeholder="Username"
-          />
-          <button class="btn btn-light" type="submit">Sign In</button>
-        </form>
-        
-        <div class="nav navbar-text mr-3">
-          User signed in: 
+        <% } else { %>
+        <div class="navbar-text mx-auto my-auto">
+          User signed in: <%= user.email %>
         </div>
-        <form class="form-inline" method="POST" action="/logout">
-          <button class="btn btn-light" type="submit">Logout</button>
-        </form> -->
+        <form action="/logout" method="post">
+          <button type="submit" class="btn btn-outline-success mx-2">
+            Logout
+          </button>
+        </form>
+        <% } %>
       </div>
     </div>
   </nav>
