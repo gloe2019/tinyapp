@@ -90,21 +90,24 @@ const emailLookup = (testEmail) => {
   return false;
 };
 
+// const userLookup = (email, password) {
+//   const user = users
+// }
+
 app.post("/register", (req, res) => {
   console.log(req.body);
   const email = req.body.email;
   const password = req.body.password;
   //if email/pass is empty string, respond with 400 status code
   if (email === "" || password === "") {
-    res.sendStatus(400);
+    res.sendStatus(400).send("Email/password cannot be empty!");
   }
   //if email already exists in users, respond with 400 status code..
   if (emailLookup(email) === true) {
-    res.sendStatus(400);
+    res.sendStatus(400).send("Email already exists in Db!");
   }
-  console.log(users);
   let id = generateRandomString();
-  // add a new user object to global users. include id, email, password
+  // add a new user object to global users.
   users[id] = {
     id,
     email,
@@ -125,21 +128,19 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
+  const { email, password } = req.body;
   //lookup the email address in the user object
   if (emailLookup(email) === false) {
-    res.sendStatus(403);
+    res.status(403).send("Email does not exist in Db! Please register");
   }
   if (emailLookup(email) === true) {
-    //if password matches url database, set user_id cookie with matching id
     for (const user in users) {
       if (password === users[user].password) {
         res.cookie("user_id", user);
         res.redirect("/urls");
       }
     }
-    res.sendStatus(403);
+    res.status(403).send("Incorrect password!");
   }
 });
 
@@ -165,10 +166,6 @@ app.post("/urls/:id", (req, res) => {
   console.log(urlDatabase);
   res.redirect("/urls");
 });
-
-// app.get("/hello", (req, res) => {
-//   res.send("<html><body>Hello <b>World</b></body></html>\n");
-// });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port: ${PORT}`);
