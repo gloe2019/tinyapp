@@ -126,6 +126,7 @@ app.post("/register", (req, res) => {
     res.sendStatus(400);
   }
   console.log(users);
+  // eslint-disable-next-line camelcase
   let user_id = generateRandomString();
   // add a new user object to global users. include id, email, password
   // eslint-disable-next-line camelcase
@@ -140,6 +141,10 @@ app.post("/register", (req, res) => {
   //redirect to urls
   console.log(users);
   res.redirect("/urls");
+});
+
+app.get("/login", (req, res) => {
+  res.render("login");
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
