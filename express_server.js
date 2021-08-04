@@ -34,23 +34,6 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-app.post("/login", (req, res) => {
-  console.log(req.body);
-  //req.body has key-val pair - username: provided username
-  // set a cookie named username to the value submitted in req.body.
-  let usernameVal = req.body.username;
-  res.cookie("username", usernameVal);
-  //redirect to /urls
-  res.redirect("/urls");
-});
-
-app.post("/logout", (req, res) => {
-  console.log(req.body);
-  res.clearCookie("username");
-  res.clearCookie("user_id");
-  res.redirect("/urls");
-});
-
 app.get("/urls", (req, res) => {
   let user = req.cookies.user_id;
   const templateVars = { user: users[user], urls: urlDatabase };
@@ -145,6 +128,23 @@ app.post("/register", (req, res) => {
 
 app.get("/login", (req, res) => {
   res.render("login");
+});
+
+app.post("/login", (req, res) => {
+  console.log(req.body);
+  //req.body has key-val pair - username: provided username
+  // set a cookie named username to the value submitted in req.body.
+  let usernameVal = req.body.username;
+  res.cookie("username", usernameVal);
+  //redirect to /urls
+  res.redirect("/urls");
+});
+
+app.post("/logout", (req, res) => {
+  console.log(req.body);
+  res.clearCookie("username");
+  res.clearCookie("user_id");
+  res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
