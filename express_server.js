@@ -18,6 +18,14 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
+const users = {
+  "218f25": {
+    id: "218f25",
+    email: "admin@tinyapp.com",
+    password: "purplepeopleeater",
+  },
+};
+
 // app.get("/", (req, res) => {
 //   res.send("Hello!");
 // });
@@ -83,6 +91,25 @@ app.get("/register", (req, res) => {
     username: req.cookies.username,
   };
   res.render("register", templateVars);
+});
+
+app.post("/register", (req, res) => {
+  console.log(req.body);
+  // console.log(req.params);
+  let userID = generateRandomString();
+  // add a new user object to global users. include id, email, password
+  users[userID] = {
+    userID: {
+      id: userID,
+      email: req.body.email,
+      password: req.body.password,
+    },
+  };
+  //set user_id cookie containing user's newly generated ID
+  res.cookie("user_id", userID);
+  //redirect to urls
+  console.log(users);
+  res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
