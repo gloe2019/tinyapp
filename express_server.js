@@ -58,16 +58,16 @@ const urlsForUser = (id) => {
   return urls;
 };
 
+app.get("/urls.json", (req, res) => {
+  res.json(urlsDb);
+});
+
 app.get("/", (req, res) => {
   const user = req.session.user_id;
   if (user) {
     res.redirect("/urls");
   }
   res.redirect("/login");
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlsDb);
 });
 
 //READ urls
@@ -77,6 +77,7 @@ app.get("/urls", (req, res) => {
   const templateVars = { user: users[user], urls };
   res.render("urls_index", templateVars);
 });
+
 //CREATE new url
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
@@ -99,6 +100,7 @@ app.get("/urls/new", (req, res) => {
   const templateVars = { user: users[user] };
   res.render("urls_new", templateVars);
 });
+
 //Users can only view their own urls
 app.get("/urls/:shortURL", (req, res) => {
   const user = req.session.user_id;
@@ -107,7 +109,6 @@ app.get("/urls/:shortURL", (req, res) => {
   if (!urlsDb[shortURL]) {
     res.status(404).send("😬Not found - invalid link!");
   }
-
   //display message/prompt if user is not logged in
   if (!user) {
     res.status(403).send("👀Login first!");
@@ -116,7 +117,6 @@ app.get("/urls/:shortURL", (req, res) => {
   if (urlsDb[shortURL].userID !== user) {
     res.status(403).send("❌ Nah, this link does not belong to you fam!");
   }
-
   const longURL = urlsDb[shortURL].longURL;
   const templateVars = {
     shortURL,
@@ -142,7 +142,7 @@ app.post("/urls/:id", (req, res) => {
   }
 });
 
-//DELETE url object from Database
+//DELETE url object from Db
 app.post("/urls/:shortURL/delete", (req, res) => {
   const userID = req.session.user_id;
   const shortURL = req.params.shortURL;
@@ -184,6 +184,7 @@ app.get("/register", (req, res) => {
   }
 });
 
+//Register new user
 app.post("/register", (req, res) => {
   console.log(req.body);
   console.log(req.session.user_id);
