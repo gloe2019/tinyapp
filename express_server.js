@@ -33,18 +33,23 @@ const users = {
   },
 };
 
+const urlDate = new Date("2021-08-05");
+
 const urlsDb = {
   b2xVn2: {
     longURL: "http://www.lighthouselabs.ca",
     userID: "218f25",
+    date: urlDate,
   },
   "06a844": {
     longURL: "http://www.reddit.com",
     userID: "218f25",
+    date: urlDate,
   },
   "9sm5xK": {
     longURL: "http://www.google.com",
     userID: "218f25",
+    date: urlDate,
   },
 };
 
@@ -83,8 +88,9 @@ app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   let longURL = req.body.longURL;
   let userID = req.session.user_id;
+  let date = Date();
   if (userID) {
-    urlsDb[shortURL] = { longURL, userID };
+    urlsDb[shortURL] = { longURL, userID, date };
     console.log(urlsDb);
     res.redirect(`/urls/${shortURL}`);
   } else {
@@ -118,9 +124,11 @@ app.get("/urls/:shortURL", (req, res) => {
     res.status(403).send("❌ Nah, this link does not belong to you fam!");
   }
   const longURL = urlsDb[shortURL].longURL;
+  const date = urlsDb[shortURL].date;
   const templateVars = {
     shortURL,
     longURL,
+    date,
     user: users[user],
   };
   res.render("urls_show", templateVars);

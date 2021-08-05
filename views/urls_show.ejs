@@ -20,6 +20,7 @@
         <p class="card-text">
           Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a>
         </p>
+        <p class="card-text">Creation Date: <%= date %></p>
         <form class="form-inline" method="POST" action="/urls/<%= shortURL %>">
           <div class="form-group mx-auto mb-4">
             <label for="longURL" class="mx-2">New URL: </label>
