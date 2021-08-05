@@ -1,4 +1,4 @@
-const findUserViaEmail = (email, database) => {
+const getUserByEmail = (email, database) => {
   for (const user in database) {
     if (database[user].email === email) {
       return user;
@@ -7,4 +7,4 @@ const findUserViaEmail = (email, database) => {
   return null;
 };
 
-module.exports = { findUserViaEmail };
+module.exports = { getUserByEmail };
