@@ -4,6 +4,7 @@ const PORT = 8080;
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session");
+const validUrl = require("valid-url");
 const { getUserByEmail } = require("./helpers");
 
 app.use(express.urlencoded({ extended: true }));
@@ -87,6 +88,15 @@ app.get("/urls", (req, res) => {
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   let longURL = req.body.longURL;
+  console.log(validUrl.isWebUri(longURL));
+  if (validUrl.isWebUri(longURL) === undefined) {
+    res
+      .status(406)
+      .send(
+        'Invalid URL - urls must begin with http:// or https:// <br><button class="btn"><a href="/urls">Go back</a></button>'
+      );
+    return;
+  }
   let userID = req.session.user_id;
   let date = Date();
   if (userID) {
