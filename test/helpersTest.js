@@ -1,5 +1,4 @@
 const { assert } = require("chai");
-
 const { getUserByEmail } = require("../helpers.js");
 
 const testUsers = {
@@ -15,8 +14,8 @@ const testUsers = {
   },
 };
 
-describe("getUserByEmail", function () {
-  it("should return a user with valid email", function () {
+describe("getUserByEmail", () => {
+  it("should return a user with valid email", () => {
     const user = getUserByEmail("user@example.com", testUsers);
     const expectedOutput = "userRandomID";
     // Write your assert statement here
