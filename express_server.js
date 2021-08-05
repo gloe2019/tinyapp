@@ -4,6 +4,7 @@ const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
+const cookieSession = require("cookie-session");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -41,9 +42,9 @@ const urlsDb = {
   },
 };
 
-const findUserViaEmail = (email) => {
-  for (const user in users) {
-    if (users[user].email === email) {
+const findUserViaEmail = (email, database) => {
+  for (const user in database) {
+    if (database[user].email === email) {
       return user;
     }
   }
@@ -202,7 +203,7 @@ app.post("/register", (req, res) => {
     res.status(400).send("Email/password cannot be empty!");
   }
   //if email already exists in users, respond with 400 status code..
-  if (findUserViaEmail(email)) {
+  if (findUserViaEmail(email, users)) {
     res
       .status(400)
       .send("Email already exists in Db - Pick a different email or login!");
@@ -235,11 +236,11 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   //lookup the email address in the user object
-  if (!findUserViaEmail(email)) {
+  if (!findUserViaEmail(email, users)) {
     res.status(403).send("Email not found in Db - Please register!");
   }
   //verify password
-  let user = findUserViaEmail(email);
+  let user = findUserViaEmail(email, users);
   let checkPass = bcrypt.compareSync(password, users[user].hashedPassword);
   if (checkPass) {
     res.cookie("user_id", user);
