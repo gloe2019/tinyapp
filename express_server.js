@@ -225,6 +225,9 @@ app.post("/register", (req, res) => {
 
 app.get("/login", (req, res) => {
   let user = req.cookies.user_id;
+  if (user) {
+    res.redirect("/urls");
+  }
   const templateVars = {
     user: users[user],
   };
