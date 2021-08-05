@@ -16,7 +16,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 - bcrypt
 - body-parser
 - cookie-session
-- valid-url
+- _valid-url_
   > _Note:_ Only valid urls (https:// or http://) can be added.
 
 ## Getting Started
