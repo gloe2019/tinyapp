@@ -177,7 +177,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 //Redirect shortURL -> longURL
 app.get("/u/:shortURL", (req, res) => {
-  //const id = req.session.user_id;
   const shortURL = req.params.shortURL;
   const url = urlsDb[shortURL];
   if (!url) {
