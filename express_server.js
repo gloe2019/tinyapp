@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session");
+const { findUserViaEmail } = require("./helpers");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -40,15 +41,6 @@ const urlsDb = {
     longURL: "http://www.google.com",
     userID: "218f25",
   },
-};
-
-const findUserViaEmail = (email, database) => {
-  for (const user in database) {
-    if (database[user].email === email) {
-      return user;
-    }
-  }
-  return null;
 };
 
 const urlsForUser = (id) => {
