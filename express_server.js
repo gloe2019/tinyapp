@@ -3,6 +3,8 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const bcrypt = require("bcrypt");
+
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.set("view engine", "ejs");
@@ -13,16 +15,14 @@ const generateRandomString = () => {
     .substring(1);
 };
 
+const adminpass = "iamr00t";
+const hash = bcrypt.hashSync(adminpass, 10);
+
 const users = {
   "218f25": {
     id: "218f25",
     email: "admin@tinyapp.com",
-    password: "purplepeopleeater",
-  },
-  f1f920: {
-    id: "f1f920",
-    email: "user1@tinyapp.com",
-    password: "c0ffeeplx",
+    hashedPassword: hash,
   },
 };
 
@@ -33,15 +33,11 @@ const urlsDb = {
   },
   "06a844": {
     longURL: "http://www.reddit.com",
-    userID: "f1f920",
+    userID: "218f25",
   },
   "9sm5xK": {
     longURL: "http://www.google.com",
     userID: "218f25",
-  },
-  "77507f": {
-    longURL: "http://www.twitter.com",
-    userID: "f1f920",
   },
 };
 
@@ -187,11 +183,12 @@ app.get("/register", (req, res) => {
   //redirect logged in users.
   if (user) {
     res.redirect("/urls");
+  } else {
+    const templateVars = {
+      user: users[user],
+    };
+    res.render("register", templateVars);
   }
-  const templateVars = {
-    user: users[user],
-  };
-  res.render("register", templateVars);
 });
 
 app.post("/register", (req, res) => {
@@ -210,12 +207,13 @@ app.post("/register", (req, res) => {
       .status(400)
       .send("Email already exists in Db - Pick a different email or login!");
   }
+  const hashedPassword = bcrypt.hashSync(password, 10);
   let id = generateRandomString();
   // add a new user object to global users.
   users[id] = {
     id,
     email,
-    password,
+    hashedPassword,
   };
   //set user_id cookie containing user's newly generated ID
   res.cookie("user_id", id);
@@ -242,7 +240,8 @@ app.post("/login", (req, res) => {
   }
   //verify password
   let user = findUserViaEmail(email);
-  if (users[user].password === password) {
+  let checkPass = bcrypt.compareSync(password, users[user].hashedPassword);
+  if (checkPass) {
     res.cookie("user_id", user);
     res.redirect("/urls");
   } else {
