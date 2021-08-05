@@ -4,9 +4,10 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["screenshot description"](#)
+!["Main Page"](docs/ta-urls-page.png)
 
-!["screenshot description"](#)
+!["shortURL page"](docs/ta-updateurl.png)
+!["Registration Page"](docs/ta-register.png)
 
 ## Dependencies
 
@@ -17,7 +18,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 - body-parser
 - cookie-session
 - _valid-url_
-  > _Note:_ Only valid urls (https:// or http://) can be added.
+  > _Note:_ Only valid urls (https:// or http://) will be accepted.
 
 ## Getting Started
 
