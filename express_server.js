@@ -22,7 +22,7 @@ const users = {
   f1f920: {
     id: "f1f920",
     email: "user1@tinyapp.com",
-    password: "c0ffeplx",
+    password: "c0ffeeplx",
   },
 };
 
@@ -105,24 +105,35 @@ app.get("/urls/new", (req, res) => {
   const templateVars = { user: users[user] };
   res.render("urls_new", templateVars);
 });
-
+//Users can only view their own urls
 app.get("/urls/:shortURL", (req, res) => {
   const user = req.cookies.user_id;
   const shortURL = req.params.shortURL;
+  // if shortURL does not exist, return HTML with message (link does not exist in Db)
+  if (!urlsDb[shortURL]) {
+    res.status(404).send("😬Not found - invalid link!");
+  }
+  //not sure what this is for... will delete soon
+  // if (!templateVars.shortURL) {
+  //   res.redirect("/urls");
+  //   return;
+  // }
+
+  //display message/prompt if user is not logged in
+  if (!user) {
+    res.status(403).send("👀Login first!");
+  }
+  //display message/prompt if URL with matching id does not belong to the user
+  if (urlsDb[shortURL].userID !== user) {
+    res.status(403).send("❌ Nah, this link does not belong to you fam!");
+  }
+
   const longURL = urlsDb[shortURL].longURL;
   const templateVars = {
     shortURL,
     longURL,
     user: users[user],
   };
-  if (!templateVars.shortURL) {
-    res.redirect("/urls");
-    return;
-  }
-  //display message/prompt if user is not logged in
-
-  //display message/prompt if URL with matching id does not belong to the user
-
   res.render("urls_show", templateVars);
 });
 
@@ -131,20 +142,30 @@ app.post("/urls/:id", (req, res) => {
   const userID = req.cookies.user_id;
   const shortURL = req.params.id;
   const longURL = req.body.longURL;
-  //make user login before updating
-  if (userID) {
+  //only link owners can update
+  if (urlsDb[shortURL].userID === userID) {
     urlsDb[shortURL] = { longURL, userID };
     res.redirect("/urls");
+  } else {
+    res
+      .status(403)
+      .send("❌ ACCESS DENIED -- this link does not belong to you\n");
   }
-  res.sendStatus(403).redirect("/login");
 });
 
 //DELETE url object from Database
 app.post("/urls/:shortURL/delete", (req, res) => {
-  console.log(req.params);
+  const userID = req.cookies.user_id;
   const shortURL = req.params.shortURL;
-  delete urlsDb[shortURL];
-  res.redirect("/urls");
+  //only link owners can delete
+  if (urlsDb[shortURL].userID === userID) {
+    delete urlsDb[shortURL];
+    res.redirect("/urls");
+  } else {
+    res
+      .status(403)
+      .send("❌ ACCESS DENIED -- this link does not belong to you\n");
+  }
 });
 
 //Redirect shortURL -> longURL
