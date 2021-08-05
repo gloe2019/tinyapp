@@ -15,6 +15,7 @@
   <body>
     <header><%- include ('partials/_header') %></header>
     <main style="margin: 1em">
+      <% if (user) { %>
       <h3>My URLs</h3>
       <table class="table">
         <thead>
@@ -47,6 +48,12 @@
           <% } %>
         </tbody>
       </table>
+      <% } else {%>
+      <p>You must login to access or edit URLs</p>
+      <button type="button" class="btn btn-outline-primary">
+        <a href="/login">Login</a>
+      </button>
+      <% } %>
     </main>
 
     <!--Bootstrap JS-->
