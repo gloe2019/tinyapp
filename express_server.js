@@ -45,6 +45,25 @@ const urlsDb = {
   },
 };
 
+const findUserViaEmail = (email) => {
+  for (const user in users) {
+    if (users[user].email === email) {
+      return user;
+    }
+  }
+  return null;
+};
+
+const urlsForUser = (id) => {
+  const urls = {};
+  for (const url in urlsDb) {
+    if (urlsDb[url].userID === id) {
+      urls[url] = urlsDb[url];
+    }
+  }
+  return urls;
+};
+
 app.get("/", (req, res) => {
   const user = req.cookies.user_id;
   if (user) {
@@ -56,16 +75,6 @@ app.get("/", (req, res) => {
 app.get("/urls.json", (req, res) => {
   res.json(urlsDb);
 });
-
-const urlsForUser = (id) => {
-  const urls = {};
-  for (const url in urlsDb) {
-    if (urlsDb[url].userID === id) {
-      urls[url] = urlsDb[url];
-    }
-  }
-  return urls;
-};
 
 //READ urls
 app.get("/urls", (req, res) => {
@@ -110,6 +119,10 @@ app.get("/urls/:shortURL", (req, res) => {
     res.redirect("/urls");
     return;
   }
+  //display message/prompt if user is not logged in
+
+  //display message/prompt if URL with matching id does not belong to the user
+
   res.render("urls_show", templateVars);
 });
 
@@ -160,16 +173,6 @@ app.get("/register", (req, res) => {
   res.render("register", templateVars);
 });
 
-const emailLookup = (testEmail) => {
-  const keys = Object.keys(users);
-  for (const key of keys) {
-    if (users[key].email === testEmail) {
-      return true;
-    }
-  }
-  return false;
-};
-
 app.post("/register", (req, res) => {
   console.log(req.body);
   console.log(req.cookies.user_id);
@@ -178,11 +181,13 @@ app.post("/register", (req, res) => {
   const password = req.body.password;
   //if email/pass is empty string, respond with 400 status code
   if (email === "" || password === "") {
-    res.sendStatus(400).send("Email/password cannot be empty!");
+    res.status(400).send("Email/password cannot be empty!");
   }
   //if email already exists in users, respond with 400 status code..
-  if (emailLookup(email) === true) {
-    res.sendStatus(400).send("Email already exists in Db!");
+  if (findUserViaEmail(email)) {
+    res
+      .status(400)
+      .send("Email already exists in Db - Pick a different email or login!");
   }
   let id = generateRandomString();
   // add a new user object to global users.
@@ -208,16 +213,15 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   //lookup the email address in the user object
-  if (emailLookup(email) === false) {
-    res.status(403).send("Email does not exist in Db! Please register");
+  if (!findUserViaEmail(email)) {
+    res.status(403).send("Email not found in Db - Please register!");
   }
-  if (emailLookup(email) === true) {
-    for (const user in users) {
-      if (password === users[user].password) {
-        res.cookie("user_id", user);
-        res.redirect("/urls");
-      }
-    }
+  //verify password
+  let user = findUserViaEmail(email);
+  if (users[user].password === password) {
+    res.cookie("user_id", user);
+    res.redirect("/urls");
+  } else {
     res.status(403).send("Incorrect password!");
   }
 });
