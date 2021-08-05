@@ -2,13 +2,18 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session");
 const { getUserByEmail } = require("./helpers");
 
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+app.use(
+  cookieSession({
+    name: "session",
+    keys: ["key1", "key2"],
+  })
+);
+
 app.set("view engine", "ejs");
 
 const generateRandomString = () => {
@@ -54,7 +59,7 @@ const urlsForUser = (id) => {
 };
 
 app.get("/", (req, res) => {
-  const user = req.cookies.user_id;
+  const user = req.session.user_id;
   if (user) {
     res.redirect("/urls");
   }
@@ -67,7 +72,7 @@ app.get("/urls.json", (req, res) => {
 
 //READ urls
 app.get("/urls", (req, res) => {
-  let user = req.cookies.user_id;
+  let user = req.session.user_id;
   let urls = urlsForUser(user);
   const templateVars = { user: users[user], urls };
   res.render("urls_index", templateVars);
@@ -76,7 +81,7 @@ app.get("/urls", (req, res) => {
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   let longURL = req.body.longURL;
-  let userID = req.cookies.user_id;
+  let userID = req.session.user_id;
   if (userID) {
     urlsDb[shortURL] = { longURL, userID };
     console.log(urlsDb);
@@ -87,26 +92,21 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     res.redirect("/login");
   }
-  let user = req.cookies.user_id;
+  let user = req.session.user_id;
   const templateVars = { user: users[user] };
   res.render("urls_new", templateVars);
 });
 //Users can only view their own urls
 app.get("/urls/:shortURL", (req, res) => {
-  const user = req.cookies.user_id;
+  const user = req.session.user_id;
   const shortURL = req.params.shortURL;
   // if shortURL does not exist, return HTML with message (link does not exist in Db)
   if (!urlsDb[shortURL]) {
     res.status(404).send("😬Not found - invalid link!");
   }
-  //not sure what this is for... will delete soon
-  // if (!templateVars.shortURL) {
-  //   res.redirect("/urls");
-  //   return;
-  // }
 
   //display message/prompt if user is not logged in
   if (!user) {
@@ -128,7 +128,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // UPDATE existing longURL
 app.post("/urls/:id", (req, res) => {
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   const shortURL = req.params.id;
   const longURL = req.body.longURL;
   //only link owners can update
@@ -144,7 +144,7 @@ app.post("/urls/:id", (req, res) => {
 
 //DELETE url object from Database
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   const shortURL = req.params.shortURL;
   //only link owners can delete
   if (urlsDb[shortURL].userID === userID) {
@@ -159,20 +159,20 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 //Redirect shortURL -> longURL
 app.get("/u/:shortURL", (req, res) => {
-  const id = req.cookies.user_id;
+  const id = req.session.user_id;
   const shortURL = req.params.shortURL;
   const longURL = urlsDb[shortURL].longURL;
   if (id) {
     res.redirect(longURL);
   }
-  //not sure how to show error message that user doesn't exist and also redirect as you cant do res.send and res.redirect in the same block?!
+  //not sure how to show error message that user doesn't exist and also redirect as you can't do res.send and res.redirect in the same block?!
 
   // res.write("User not logged in!");
   // res.redirect(longURL); -- this crashed the ting...
 });
 
 app.get("/register", (req, res) => {
-  const user = req.cookies.user_id;
+  const user = req.session.user_id;
   //redirect logged in users.
   if (user) {
     res.redirect("/urls");
@@ -186,7 +186,7 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   console.log(req.body);
-  console.log(req.cookies.user_id);
+  console.log(req.session.user_id);
 
   const email = req.body.email;
   const password = req.body.password;
@@ -209,13 +209,13 @@ app.post("/register", (req, res) => {
     hashedPassword,
   };
   //set user_id cookie containing user's newly generated ID
-  res.cookie("user_id", id);
+  req.session.user_id = id;
   console.log(users);
   res.redirect("/urls");
 });
 
 app.get("/login", (req, res) => {
-  let user = req.cookies.user_id;
+  let user = req.session.user_id;
   if (user) {
     res.redirect("/urls");
   }
@@ -235,7 +235,7 @@ app.post("/login", (req, res) => {
   let user = getUserByEmail(email, users);
   let checkPass = bcrypt.compareSync(password, users[user].hashedPassword);
   if (checkPass) {
-    res.cookie("user_id", user);
+    req.session.user_id = user;
     res.redirect("/urls");
   } else {
     res.status(403).send("Incorrect password!");
@@ -244,7 +244,7 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   console.log(req.body);
-  res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/urls");
 });
 
