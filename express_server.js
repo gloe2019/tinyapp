@@ -159,16 +159,14 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 //Redirect shortURL -> longURL
 app.get("/u/:shortURL", (req, res) => {
-  const id = req.session.user_id;
+  //const id = req.session.user_id;
   const shortURL = req.params.shortURL;
-  const longURL = urlsDb[shortURL].longURL;
-  if (id) {
-    res.redirect(longURL);
+  const url = urlsDb[shortURL];
+  if (!url) {
+    res.status(404).send("This URL does not exist in the Db!");
+    return;
   }
-  //not sure how to show error message that user doesn't exist and also redirect as you can't do res.send and res.redirect in the same block?!
-
-  // res.write("User not logged in!");
-  // res.redirect(longURL); -- this crashed the ting...
+  res.redirect(url.longURL);
 });
 
 app.get("/register", (req, res) => {
