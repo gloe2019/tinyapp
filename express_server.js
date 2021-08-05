@@ -13,16 +13,16 @@ const generateRandomString = () => {
     .substring(1);
 };
 
-// const urlDatabase = {
-//   b2xVn2: "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com",
-// };
-
 const users = {
   "218f25": {
     id: "218f25",
     email: "admin@tinyapp.com",
     password: "purplepeopleeater",
+  },
+  f1f920: {
+    id: "f1f920",
+    email: "user1@tinyapp.com",
+    password: "c0ffeplx",
   },
 };
 
@@ -31,9 +31,17 @@ const urlsDb = {
     longURL: "http://www.lighthouselabs.ca",
     userID: "218f25",
   },
+  "06a844": {
+    longURL: "http://www.reddit.com",
+    userID: "f1f920",
+  },
   "9sm5xK": {
     longURL: "http://www.google.com",
     userID: "218f25",
+  },
+  "77507f": {
+    longURL: "http://www.twitter.com",
+    userID: "f1f920",
   },
 };
 
@@ -49,10 +57,21 @@ app.get("/urls.json", (req, res) => {
   res.json(urlsDb);
 });
 
+const urlsForUser = (id) => {
+  const urls = {};
+  for (const url in urlsDb) {
+    if (urlsDb[url].userID === id) {
+      urls[url] = urlsDb[url];
+    }
+  }
+  return urls;
+};
+
 //READ urls
 app.get("/urls", (req, res) => {
   let user = req.cookies.user_id;
-  const templateVars = { user: users[user], urls: urlsDb };
+  let urls = urlsForUser(user);
+  const templateVars = { user: users[user], urls };
   res.render("urls_index", templateVars);
 });
 //CREATE new url
@@ -60,9 +79,13 @@ app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   let longURL = req.body.longURL;
   let userID = req.cookies.user_id;
-  urlsDb[shortURL] = { longURL, userID };
-  console.log(urlsDb);
-  res.redirect(`/urls/${shortURL}`);
+  if (userID) {
+    urlsDb[shortURL] = { longURL, userID };
+    console.log(urlsDb);
+    res.redirect(`/urls/${shortURL}`);
+  } else {
+    res.redirect("/urls");
+  }
 });
 
 app.get("/urls/new", (req, res) => {
@@ -89,13 +112,18 @@ app.get("/urls/:shortURL", (req, res) => {
   }
   res.render("urls_show", templateVars);
 });
+
 // UPDATE existing longURL
 app.post("/urls/:id", (req, res) => {
   const userID = req.cookies.user_id;
   const shortURL = req.params.id;
   const longURL = req.body.longURL;
-  urlsDb[shortURL] = { longURL, userID };
-  res.redirect("/urls");
+  //make user login before updating
+  if (userID) {
+    urlsDb[shortURL] = { longURL, userID };
+    res.redirect("/urls");
+  }
+  res.sendStatus(403).redirect("/login");
 });
 
 //DELETE url object from Database
@@ -106,6 +134,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect("/urls");
 });
 
+//Redirect shortURL -> longURL
 app.get("/u/:shortURL", (req, res) => {
   const id = req.cookies.user_id;
   const shortURL = req.params.shortURL;
@@ -113,12 +142,18 @@ app.get("/u/:shortURL", (req, res) => {
   if (id) {
     res.redirect(longURL);
   }
-  // else {
-  // }
+  //not sure how to show error message that user doesn't exist and also redirect as you cant do res.send and res.redirect in the same block?!
+
+  // res.write("User not logged in!");
+  // res.redirect(longURL); -- this crashed the ting...
 });
 
 app.get("/register", (req, res) => {
-  let user = req.cookies.user_id;
+  const user = req.cookies.user_id;
+  //redirect logged in users.
+  if (user) {
+    res.redirect("/urls");
+  }
   const templateVars = {
     user: users[user],
   };
@@ -137,6 +172,8 @@ const emailLookup = (testEmail) => {
 
 app.post("/register", (req, res) => {
   console.log(req.body);
+  console.log(req.cookies.user_id);
+
   const email = req.body.email;
   const password = req.body.password;
   //if email/pass is empty string, respond with 400 status code
